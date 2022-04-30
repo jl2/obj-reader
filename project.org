@@ -7,7 +7,7 @@ A Wavefront OBJ reader written in Rust.
 #+BEGIN_SRC rustic :extern crate obj;
   use obj;
 
-  match obj::obj_from_file("/home/jeremiah/data/3d-models/cube.obj") {
+  match obj::obj_from_file("tests/models/cube.obj") {
       Some(obj)=>
           println!("{:?}", obj),
       None =>
