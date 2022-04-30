@@ -88,46 +88,31 @@ pub mod obj {
         pub materials : HashMap<String, ObjMaterial>,
     }
 
-    fn add_v( obj : &mut ObjFile , value : f32) {
-        obj.objects.last_mut().unwrap().vertices.push(value);
-    }
-
     fn read_v( obj : &mut ObjFile , line : &str) {
         for pt in line.split_whitespace() {
             let value : f32 = pt.parse().unwrap();
-            add_v(obj, value);
+            obj.objects.last_mut().unwrap().vertices.push(value);
         }
-    }
-
-    pub fn add_vn(obj : &mut ObjFile, value : f32) {
-        obj.objects.last_mut().unwrap().normals.push(value);
     }
 
     fn read_vn(obj : &mut ObjFile, line : &str) {
         for pt in line.split_whitespace() {
             let value : f32 = pt.parse().unwrap();
-            add_vn(obj, value);
+            obj.objects.last_mut().unwrap().normals.push(value);
         }
     }
 
-    pub fn add_vp(obj : &mut ObjFile, value : f32) {
-        obj.objects.last_mut().unwrap().parameters.push(value);
-    }
     fn read_vp(obj : &mut ObjFile, line : &str) {
         for pt in line.split_whitespace() {
             let value : f32 = pt.parse().unwrap();
-            add_vp(obj, value);
+            obj.objects.last_mut().unwrap().parameters.push(value);
         }
-    }
-
-    fn add_vt(obj : &mut ObjFile, value : f32) {
-        obj.objects.last_mut().unwrap().textures.push(value);
     }
 
     fn read_vt(obj : &mut ObjFile, line : &str) {
         for pt in line.split_whitespace() {
             let value : f32 = pt.parse().unwrap();
-            add_vt(obj, value);
+            obj.objects.last_mut().unwrap().textures.push(value);
         }
     }
 
@@ -154,14 +139,13 @@ pub mod obj {
                     y.parse()).collect()).collect();
 
         if tri_verts.len() != 3 {
-            panic!("Non-triangular faces not supported!");
+            return ();
         }
         for next_vert in tri_verts {
             match &next_vert[..] {
 
                 [Ok(vert)] =>
                     obj.objects.last_mut().unwrap().groups.last_mut().unwrap().faces.push(Index::Vertex{v: *vert}),
-
                 [Ok(vert), Ok(text)] =>
                     obj.objects.last_mut().unwrap().groups.last_mut().unwrap().faces.push(Index::VertexTexture{v: *vert,
                                                                                                                t: *text}),
@@ -173,7 +157,7 @@ pub mod obj {
                                                                                                                      t: *text,
                                                                                                                      n: *norm}),
                 _ => {
-                    panic!("Unsupported face index specifier.  Expected v, v/t, v/t/n, or v//n!");
+                    return ();
                 }
             }
         }
@@ -191,7 +175,7 @@ pub mod obj {
                                                                                                           t: *text}),
 
             _ => {
-                panic!("Unsupported line index specifier.  Expected v or v/t");
+                return ();
             }
         }
     }
@@ -202,7 +186,7 @@ pub mod obj {
             [Ok(vert)] =>
                 obj.objects.last_mut().unwrap().groups.last_mut().unwrap().points.push(*vert),
             _ => {
-                panic!("Unsupported point index specifier.  Expected a space separated list of vertex indices.");
+                return ();
             }
         }
     }
@@ -260,7 +244,7 @@ pub mod obj {
                 let tmp : String = mat.name[..].to_string();
                 obj.materials.insert(tmp, mat);
             } else {
-                panic!("Could not open {}", obj.file_name);
+                return ();
             }
         }
         ();
@@ -341,20 +325,11 @@ pub mod obj {
                     if let Some(parser) = parsers.get(&String::from(opcode)) {
                         if let Some(rest) = &tokens.next() {
                             parser(&mut obj_file, remove_comments(&rest));
-                        } else {
-                            panic!("Could not get rest");
                         }
-                    } else {
-                        panic!("Could not find opcode {} in parsers table", opcode);
                     }
-                } else {
-                    panic!("Could not find opcode in line.");
                 }
             }
-        } else {
-            panic!("Could not open file");
         }
-
         return Some(obj_file);
     }
 }
