@@ -1,0 +1,24 @@
+* obj-reader
+
+** About
+A Wavefront OBJ reader written in Rust.
+
+** Example
+#+BEGIN_SRC rustic :extern crate obj;
+  use obj;
+
+  match obj::obj_from_file("/home/jeremiah/data/3d-models/cube.obj") {
+      Some(obj)=>
+          println!("{:?}", obj),
+      None =>
+          println!("obj_from_file failed!"),
+  }
+#+END_SRC
+
+** License
+ISC
+
+Copyright (c) 2022 Jeremiah LaRocco <jeremiah_larocco@fastmail.com>
+
+* Plan
+** TODO Fix mtllib imports
